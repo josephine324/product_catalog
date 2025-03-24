@@ -213,7 +213,7 @@ Content-Type: application/json
   "updatedAt": "2025-03-24T10:11:56.302Z"
 }
 ```
-# Assumptions and Limitations
+## Assumptions and Limitations
 ### Assumptions
 * Admin Role: Any user can register as an admin by specifying "role": "admin" (for testing). In production, this should be restricted.
 * JWT Secret: A secure JWT_SECRET is provided in .env and not hardcoded.

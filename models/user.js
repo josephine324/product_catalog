@@ -1,56 +1,25 @@
+// models/User.js
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    passwordHash: {
-        type: String,
-        required: true,
-    },
-    phone: {
-        type: String,
-        required: true,
-    },
-    isAdmin: {
-        type: Boolean,
-        default: false,
-    },
-    street: {
-        type: String,
-        default: ''
-    },
-    apartment: {
-        type: String,
-        default: ''
-    },
-    zip :{
-        type: String,
-        default: ''
-    },
-    city: {
-        type: String,
-        default: ''
-    },
-    country: {
-        type: String,
-        default: ''
-    }
-
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    createdAt: { type: Date, default: Date.now }
 });
 
-userSchema.virtual('id').get(function () {
-    return this._id.toHexString();
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
 });
 
-userSchema.set('toJSON', {
-    virtuals: true,
-});
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+};
 
-exports.User = mongoose.model('User', userSchema);
-exports.userSchema = userSchema;
+module.exports = mongoose.model('User', userSchema);
